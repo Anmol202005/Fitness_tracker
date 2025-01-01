@@ -17,7 +17,7 @@ public class OTP {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID otpId;
-    private String OTP;
-    private String Email;
-    private LocalDateTime Created;
+    private String otp;
+    private String email;
+    private LocalDateTime created;
 }

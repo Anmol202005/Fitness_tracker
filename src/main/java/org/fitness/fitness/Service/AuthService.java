@@ -57,7 +57,7 @@ public class AuthService {
             sendVerificationEmail(user.get().getEmail(), otp);
             OTP otp1 = new OTP();
             otp1.setEmail(user.get().getEmail());
-            otp1.setOTP(otp);
+            otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
             return ResponseEntity.ok().body(ResponseMessage
                     .builder()
@@ -73,7 +73,7 @@ public class AuthService {
             String otp = generateotp();
             OTP otp1 = new OTP();
             otp1.setEmail(request.getEmail());
-            otp1.setOTP(otp);
+            otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
             sendVerificationEmail(request.getEmail(), otp);
             return ResponseEntity.ok().body(ResponseMessage
@@ -179,7 +179,7 @@ public class AuthService {
                                                                                      .build());
         }
         String otp1 = generateotp();
-        otp.setOTP(otp1);
+        otp.setOtp(otp1);
         otp.setCreated(LocalDateTime.now());
         otpRepository.save(otp);
         sendVerificationEmail(email, otp1);
