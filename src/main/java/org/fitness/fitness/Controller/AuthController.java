@@ -1,12 +1,16 @@
 package org.fitness.fitness.Controller;
 
+import java.io.IOException;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.AuthenticationRequest;
 import org.fitness.fitness.Model.DTO.ForgotPasswordRequest;
+import org.fitness.fitness.Model.DTO.OAuthToken;
 import org.fitness.fitness.Model.DTO.OtpValidation;
 import org.fitness.fitness.Model.DTO.RegisterRequest;
 import org.fitness.fitness.Model.DTO.ResetPassword;
+import org.fitness.fitness.Repository.UserRepository;
 import org.fitness.fitness.Service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserRepository userRepository;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request
@@ -60,6 +66,11 @@ public class AuthController {
           @Valid @RequestBody ResetPassword request
     ){
         return authService.resetPassword(request);
+    }
+
+    @PostMapping("oauth/success")
+    public ResponseEntity<?> success(@RequestBody OAuthToken request) throws IOException, InterruptedException {
+        return authService.success(request.getToken());
     }
 
 }

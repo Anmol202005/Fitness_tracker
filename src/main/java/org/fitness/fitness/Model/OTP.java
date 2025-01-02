@@ -1,7 +1,6 @@
 package org.fitness.fitness.Model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +15,7 @@ import lombok.Data;
 public class OTP {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID otpId;
+    private Long otpId;
     private String otp;
     private String email;
     private LocalDateTime created;

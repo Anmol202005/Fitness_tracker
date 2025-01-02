@@ -1,13 +1,21 @@
 package org.fitness.fitness.Service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Random;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.AuthenticationRequest;
 import org.fitness.fitness.Model.DTO.AuthenticationResponse;
+import org.fitness.fitness.Model.DTO.GoogleSignRequest;
 import org.fitness.fitness.Model.DTO.OtpValidation;
 import org.fitness.fitness.Model.DTO.RegisterRequest;
 import org.fitness.fitness.Model.DTO.ResetPassword;
@@ -34,6 +42,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
+    public static final String GOOGLE_CLIENT_ID1="722775222498-3s0308ref3oo9iartvqbvnnclclp69fl.apps.googleusercontent.com";
 
     public ResponseEntity<?> register(RegisterRequest request) {
         if (userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
@@ -239,4 +248,57 @@ public class AuthService {
         userDetails.setEmail(user.getEmail());
         return userDetails;
     }
+    public ResponseEntity<?> success(String token) throws IOException, InterruptedException {
+        HttpClient httpClient = HttpClient.newHttpClient();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            HttpRequest request = HttpRequest.newBuilder()
+                                             .uri(URI.create("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token))
+                                             .GET()
+                                             .build();
+            System.out.println(request);
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response);
+            GoogleSignRequest googleSignRequest = mapper.readValue(response.body(), GoogleSignRequest.class);
+            if(googleSignRequest != null) {
+                if(verifyGoogleToken(googleSignRequest)) {
+                    String email = googleSignRequest.email();
+                    String name = googleSignRequest.given_name();
+                    String message="Account created successfully";
+                    if(!userRepository.existsByEmail(email)) {
+                        User user = new User();
+                        user.setEmail(email);
+                        user.setUsername(name);
+                        user.setPassword("OAuth_USER");
+                        userRepository.save(user);
+                        message="Login successful";
+                    }
+                    User user = userRepository.findByEmail(email).get();
+                    var jwtToken = jwtService.generateToken(user);
+                    return ResponseEntity.ok(AuthenticationResponse
+                     .builder()
+                     .token(jwtToken)
+                     .message(message)
+                     .user(createUserDetails(user))
+                     .build());
+                }
+                else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Token either expired or INVALID")
+                    .build());
+                }
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("INVALID TOKEN")
+                    .build());
+            }
+    }
+
+     private Boolean verifyGoogleToken(GoogleSignRequest request) {
+        return request.azp().equals(GOOGLE_CLIENT_ID1) && request.exp() * 1000L >= System.currentTimeMillis();
+    }
+
 }
