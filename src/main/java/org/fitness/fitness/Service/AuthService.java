@@ -320,13 +320,13 @@ public class AuthService {
 
     public ResponseEntity<?> ifRegistered(String Email){
         if(userRepository.existsByEmail(Email)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-                    .builder()
-                    .message("Go to Login")
-                    .build());
+            return ResponseEntity.ok().body(ResponseMessage
+                .builder()
+                .message("Go to login")
+                .build());
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+            return ResponseEntity.ok().body(ResponseMessage
                     .builder()
                     .message("Go to SignUP")
                     .build());
