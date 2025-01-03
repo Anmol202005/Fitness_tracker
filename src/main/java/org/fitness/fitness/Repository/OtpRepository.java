@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface OtpRepository extends JpaRepository<OTP, Long> {
  Boolean existsByEmailAndOtp(String email, String otp);
  OTP findByEmail(String email);
+ Boolean existsByEmail(String email);
 }

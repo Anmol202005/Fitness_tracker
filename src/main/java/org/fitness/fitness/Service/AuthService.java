@@ -8,6 +8,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -68,9 +69,10 @@ public class AuthService {
             otp1.setEmail(user.get().getEmail());
             otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
+            otpRepository.save(otp1);
             return ResponseEntity.ok().body(ResponseMessage
                     .builder()
-                    .message("User successfully registered")
+                    .message("OTP sent successfully")
                     .build());
         } else {
             User user = new User();
@@ -84,17 +86,18 @@ public class AuthService {
             otp1.setEmail(request.getEmail());
             otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
+            otpRepository.save(otp1);
             sendVerificationEmail(request.getEmail(), otp);
             return ResponseEntity.ok().body(ResponseMessage
                     .builder()
-                    .message("User successfully registered")
+                    .message("OTP successfully sent")
                     .build());
         }
     }
 
     private String generateotp() {
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
+        int otp = 1000 + random.nextInt(9000);
         return String.valueOf(otp);
     }
 
@@ -141,6 +144,12 @@ public class AuthService {
     }
 
     public ResponseEntity<?> validate(OtpValidation request) {
+        if(userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                        .builder()
+                        .message("Account already verified and registered")
+                        .build());
+        }
         if (otpRepository.existsByEmailAndOtp(request.getEmail(), request.getOtp())) {
             OTP otp = otpRepository.findByEmail(request.getEmail());
             long minuteElapsed = ChronoUnit.MINUTES.between(otp.getCreated(), LocalDateTime.now());
@@ -153,8 +162,7 @@ public class AuthService {
             User user = userRepository.findByEmail(request.getEmail()).get();
             user.setIsVerified(true);
             userRepository.save(user);
-            otp.setCreated(null);
-            otpRepository.save(otp);
+            otpRepository.delete(otp);
             var jwtToken = jwtService.generateToken(user);
             return ResponseEntity.ok(AuthenticationResponse.builder()
                                                            .message("Account has been registered successfully")
@@ -176,7 +184,9 @@ public class AuthService {
                     .message("Account not registered")
                     .build());
         }
-        OTP otp = otpRepository.findByEmail(email);
+        OTP otp;
+        if(otpRepository.existsByEmail(email)){
+         otp = otpRepository.findByEmail(email);
         long secondElapsed;
         if (otp.getCreated() != null)
             secondElapsed = ChronoUnit.SECONDS.between(otp.getCreated(), LocalDateTime.now());
@@ -186,7 +196,8 @@ public class AuthService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("OTP can not be send before 30 second")
                                                                                      .build());
-        }
+        }}
+        else{ otp = new OTP();}
         String otp1 = generateotp();
         otp.setOtp(otp1);
         otp.setCreated(LocalDateTime.now());
@@ -234,13 +245,21 @@ public class AuthService {
                     .message("OTP timeout")
                     .build());
         }
-        User user = userRepository.findByEmail(request.getEmail()).get();
+        if(Objects.equals(otp.getOtp(), request.getOtp())){User user = userRepository.findByEmail(request.getEmail()).get();
         user.setChangePassword(true);
         userRepository.save(user);
+        otpRepository.delete(otp);
         return ResponseEntity.ok().body(ResponseMessage
                 .builder()
-                .message("OTP sent successfully to" + request.getEmail())
+                .message("Email verified successfully")
                 .build());
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("invalid OTP")
+                    .build());
+        }
     }
     public UserDetails createUserDetails(User user){
          UserDetails userDetails = new UserDetails();

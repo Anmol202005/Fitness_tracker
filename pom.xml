@@ -116,12 +116,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.5.0-b01</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
@@ -181,6 +175,7 @@
     <version>0.11.5</version>
 </dependency>
 
+
 <dependency>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-oauth2-jose</artifactId>
@@ -236,6 +231,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>fitness</finalName>
     </build>
 
 </project>

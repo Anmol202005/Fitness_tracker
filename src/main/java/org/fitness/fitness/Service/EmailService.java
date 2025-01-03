@@ -1,8 +1,7 @@
 package org.fitness.fitness.Service;
 
-import jakarta.mail.internet.MimeMessage;
-
 import org.fitness.fitness.Model.DTO.ResponseMessage;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
