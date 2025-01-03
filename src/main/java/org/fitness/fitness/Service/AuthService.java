@@ -313,8 +313,10 @@ public class AuthService {
     }
 
      private Boolean verifyGoogleToken(GoogleSignRequest request) {
+        if(request.azp()!=null && request.exp()!=null) {
         return request.azp().equals(GOOGLE_CLIENT_ID1) && request.exp() * 1000L >= System.currentTimeMillis();
     }
+     return false;}
 
     public ResponseEntity<?> ifRegistered(String Email){
         if(userRepository.existsByEmail(Email)) {

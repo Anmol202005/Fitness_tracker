@@ -74,7 +74,7 @@ public class AuthController {
     }
 
     @PostMapping("/ifRegistered")
-    public ResponseEntity<?> ifRegistered(ForgotPasswordRequest request){
+    public ResponseEntity<?> ifRegistered(@RequestBody ForgotPasswordRequest request){
         return authService.ifRegistered(request.getEmail());
     }
 
