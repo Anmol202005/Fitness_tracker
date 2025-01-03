@@ -316,4 +316,18 @@ public class AuthService {
         return request.azp().equals(GOOGLE_CLIENT_ID1) && request.exp() * 1000L >= System.currentTimeMillis();
     }
 
+    public ResponseEntity<?> ifRegistered(String Email){
+        if(userRepository.existsByEmail(Email)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Go to Login")
+                    .build());
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Go to SignUP")
+                    .build());
+        }
+    }
 }
