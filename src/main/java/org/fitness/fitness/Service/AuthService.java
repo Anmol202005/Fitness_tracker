@@ -53,13 +53,8 @@ public class AuthService {
                     .build());
         } else if (userRepository.existsByEmailAndIsVerified(request.getEmail(), false)) {
             var user = userRepository.findByEmail(request.getEmail());
-            if (userRepository.existsByUsername(request.getUserName())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-                        .builder()
-                        .message("Username already in use")
-                        .build());
-            }
-            user.get().setUsername(request.getUserName());
+
+            user.get().setName(request.getUserName());
             user.get().setPassword(passwordEncoder.encode(request.getPassword()));
             user.get().setChangePassword(false);
             userRepository.save(user.get());
@@ -77,7 +72,7 @@ public class AuthService {
         } else {
             User user = new User();
             user.setEmail(request.getEmail());
-            user.setUsername(request.getUserName());
+            user.setName(request.getUserName());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setChangePassword(false);
             userRepository.save(user);
@@ -199,6 +194,7 @@ public class AuthService {
         }}
         else{ otp = new OTP();}
         String otp1 = generateotp();
+        otp.setEmail(email);
         otp.setOtp(otp1);
         otp.setCreated(LocalDateTime.now());
         otpRepository.save(otp);
@@ -263,7 +259,7 @@ public class AuthService {
     }
     public UserDetails createUserDetails(User user){
          UserDetails userDetails = new UserDetails();
-        userDetails.setUsername(user.getUsername());
+        userDetails.setUsername(user.getName());
         userDetails.setEmail(user.getEmail());
         return userDetails;
     }
@@ -287,7 +283,7 @@ public class AuthService {
                     if(!userRepository.existsByEmail(email)) {
                         User user = new User();
                         user.setEmail(email);
-                        user.setUsername(name);
+                        user.setName(name);
                         user.setPassword("OAuth_USER");
                         userRepository.save(user);
                         message="Login successful";
