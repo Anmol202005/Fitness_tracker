@@ -263,7 +263,7 @@ public class AuthService {
             if(googleSignRequest != null) {
                 if(verifyGoogleToken(googleSignRequest)) {
                     String email = googleSignRequest.email();
-                    String name = googleSignRequest.given_name();
+                    String name = googleSignRequest.name();
                     String message="Account created successfully";
                     if(!userRepository.existsByEmail(email)) {
                         User user = new User();
