@@ -31,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -98,7 +100,7 @@ public class AuthService {
 
     public void sendVerificationEmail(String email, String otp) {
         String subject = "Verification Mail";
-        String imageUrl = "https://i.ibb.co/kJkpyt6/Workify.png";
+        String imageUrl = "https://i.ibb.co/rbwTxc9/logo-stride.png";
         String body = "<html><body>" +
                 "<img src='" + imageUrl + "' alt='Verification Image' style='max-width:100%;height:auto;'>" +
                 "<p>Your verification code is <strong>" + otp + "</strong></p>" +
@@ -167,7 +169,7 @@ public class AuthService {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
                     .builder()
-                    .message("Account not registered")
+                    .message("Incorrect Credentials")
                     .build());
         }
     }
@@ -201,14 +203,23 @@ public class AuthService {
         sendVerificationEmail(email, otp1);
         return ResponseEntity.ok().body(ResponseMessage
                 .builder()
-                .message("OTP sent successfully to" + email)
+                .message("OTP sent successfully to " + email)
                 .build());
     }
 
     public ResponseEntity<?> resetPassword(ResetPassword request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var currentUser = (User) authentication.getPrincipal();
+
         if (!userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("Email not registered")
+                                                                                     .build());
+        }
+
+        if(!currentUser.getEmail().equals(request.getEmail())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
+                                                                                     .message("Token not Valid")
                                                                                      .build());
         }
         User user = userRepository.findByEmail(request.getEmail()).get();
@@ -245,9 +256,14 @@ public class AuthService {
         user.setChangePassword(true);
         userRepository.save(user);
         otpRepository.delete(otp);
-        return ResponseEntity.ok().body(ResponseMessage
+        var jwtToken = jwtService.generateToken(user);
+        UserDetails userDetails = createUserDetails(user);
+
+        return ResponseEntity.ok(AuthenticationResponse
                 .builder()
-                .message("Email verified successfully")
+                .token(jwtToken)
+                .message("Email Verified")
+                .user(userDetails)
                 .build());
         }
         else{
