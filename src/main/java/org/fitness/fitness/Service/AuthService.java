@@ -45,7 +45,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
-    public static final String GOOGLE_CLIENT_ID1="722775222498-3s0308ref3oo9iartvqbvnnclclp69fl.apps.googleusercontent.com";
+    public static final String GOOGLE_CLIENT_ID1="1003392708014-m95f2ch72jsq6lgu1m6dbqpg8og260ke.apps.googleusercontent.com";
 
     public ResponseEntity<?> register(RegisterRequest request) {
         if (userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
