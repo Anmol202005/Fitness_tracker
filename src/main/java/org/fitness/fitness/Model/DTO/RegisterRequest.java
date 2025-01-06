@@ -8,8 +8,9 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
-     @NotNull(message = "First Name can't be empty")
-    @Size(min = 1,message = "first name can't be empty")
+     @NotNull(message = "User Name can't be empty")
+    @Size(min = 1,max=12,message = "User can't be more than 12 character")
+     @Pattern(regexp = "^[a-zA-Z]*$", message = "User Name can't contain spaces or numbers")
     private String userName;
     @Email(message = "invalid Email")
     private String email;

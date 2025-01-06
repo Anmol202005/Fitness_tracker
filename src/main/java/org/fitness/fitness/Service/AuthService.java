@@ -7,7 +7,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
@@ -48,22 +47,24 @@ public class AuthService {
     public static final String GOOGLE_CLIENT_ID1="1003392708014-m95f2ch72jsq6lgu1m6dbqpg8og260ke.apps.googleusercontent.com";
 
     public ResponseEntity<?> register(RegisterRequest request) {
-        if (userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+        String Email = request.getEmail().toLowerCase().trim();
+        if (userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
                     .builder()
                     .message("Email already registered")
                     .build());
-        } else if (userRepository.existsByEmailAndIsVerified(request.getEmail(), false)) {
-            var user = userRepository.findByEmail(request.getEmail());
+        } else if (userRepository.existsByEmailAndIsVerified(Email, false)) {
+            var user = userRepository.findByEmail(Email);
 
             user.get().setName(request.getUserName());
-            user.get().setPassword(passwordEncoder.encode(request.getPassword()));
+            user.get().setPassword(passwordEncoder.encode(Email));
             user.get().setChangePassword(false);
+            user.get().setIsVerified(false);
             userRepository.save(user.get());
             String otp = generateotp();
-            sendVerificationEmail(user.get().getEmail(), otp);
+            sendVerificationEmail(Email, otp);
             OTP otp1 = new OTP();
-            otp1.setEmail(user.get().getEmail());
+            otp1.setEmail(Email);
             otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
             otpRepository.save(otp1);
@@ -73,18 +74,19 @@ public class AuthService {
                     .build());
         } else {
             User user = new User();
-            user.setEmail(request.getEmail());
+            user.setEmail(Email);
             user.setName(request.getUserName());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setChangePassword(false);
+            user.setIsVerified(false);
             userRepository.save(user);
             String otp = generateotp();
             OTP otp1 = new OTP();
-            otp1.setEmail(request.getEmail());
+            otp1.setEmail(Email);
             otp1.setOtp(otp);
             otp1.setCreated(LocalDateTime.now());
             otpRepository.save(otp1);
-            sendVerificationEmail(request.getEmail(), otp);
+            sendVerificationEmail(Email, otp);
             return ResponseEntity.ok().body(ResponseMessage
                     .builder()
                     .message("OTP successfully sent")
@@ -111,7 +113,8 @@ public class AuthService {
     }
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
-        if (!userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+        String Email = request.getEmail().toLowerCase().trim();
+        if (!userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("User not registered")
                                                                                      .build());
@@ -119,7 +122,7 @@ public class AuthService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail().toLowerCase(Locale.ROOT),
+                            Email,
                             request.getPassword()));
         } catch (
                 BadCredentialsException e) {
@@ -128,7 +131,7 @@ public class AuthService {
                     .message("Incorrect password")
                     .build());
         }
-        User user = userRepository.findByEmail(request.getEmail()).get();
+        User user = userRepository.findByEmail(Email).get();
         var jwtToken = jwtService.generateToken(user);
         UserDetails userDetails = createUserDetails(user);
 
@@ -141,14 +144,15 @@ public class AuthService {
     }
 
     public ResponseEntity<?> validate(OtpValidation request) {
-        if(userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+        String Email = request.getEmail().toLowerCase().trim();
+        if(userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
                         .builder()
                         .message("Account already verified and registered")
                         .build());
         }
-        if (otpRepository.existsByEmailAndOtp(request.getEmail(), request.getOtp())) {
-            OTP otp = otpRepository.findByEmail(request.getEmail());
+        if (otpRepository.existsByEmailAndOtp(Email, request.getOtp())) {
+            OTP otp = otpRepository.findByEmail(Email);
             long minuteElapsed = ChronoUnit.MINUTES.between(otp.getCreated(), LocalDateTime.now());
             if (minuteElapsed > 5) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
@@ -156,7 +160,7 @@ public class AuthService {
                         .message("OTP timeout")
                         .build());
             }
-            User user = userRepository.findByEmail(request.getEmail()).get();
+            User user = userRepository.findByEmail(Email).get();
             user.setIsVerified(true);
             userRepository.save(user);
             otpRepository.delete(otp);
@@ -175,15 +179,16 @@ public class AuthService {
     }
 
     public ResponseEntity<?> forgotPassword(String email) {
-        if (!userRepository.existsByEmailAndIsVerified(email, true)) {
+        String Email = email.toLowerCase().trim();
+        if (!userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
                     .builder()
                     .message("Account not registered")
                     .build());
         }
         OTP otp;
-        if(otpRepository.existsByEmail(email)){
-         otp = otpRepository.findByEmail(email);
+        if(otpRepository.existsByEmail(Email)){
+         otp = otpRepository.findByEmail(Email);
         long secondElapsed;
         if (otp.getCreated() != null)
             secondElapsed = ChronoUnit.SECONDS.between(otp.getCreated(), LocalDateTime.now());
@@ -196,11 +201,11 @@ public class AuthService {
         }}
         else{ otp = new OTP();}
         String otp1 = generateotp();
-        otp.setEmail(email);
+        otp.setEmail(Email);
         otp.setOtp(otp1);
         otp.setCreated(LocalDateTime.now());
         otpRepository.save(otp);
-        sendVerificationEmail(email, otp1);
+        sendVerificationEmail(Email, otp1);
         return ResponseEntity.ok().body(ResponseMessage
                 .builder()
                 .message("OTP sent successfully to " + email)
@@ -208,21 +213,22 @@ public class AuthService {
     }
 
     public ResponseEntity<?> resetPassword(ResetPassword request) {
+        String Email = request.getEmail().toLowerCase().trim();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
 
-        if (!userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+        if (!userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("Email not registered")
                                                                                      .build());
         }
 
-        if(!currentUser.getEmail().equals(request.getEmail())){
+        if(!currentUser.getEmail().equals(Email)){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("Token not Valid")
                                                                                      .build());
         }
-        User user = userRepository.findByEmail(request.getEmail()).get();
+        User user = userRepository.findByEmail(Email).get();
         if (user.getChangePassword()) {
             user.setChangePassword(false);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -239,12 +245,14 @@ public class AuthService {
     }
 
     public ResponseEntity<?> emailverify(OtpValidation request) {
-        if (!userRepository.existsByEmailAndIsVerified(request.getEmail(), true)) {
+        String Email = request.getEmail().toLowerCase().trim();
+
+        if (!userRepository.existsByEmailAndIsVerified(Email, true)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("Email not registered")
                                                                                      .build());
         }
-        OTP otp = otpRepository.findByEmail(request.getEmail());
+        OTP otp = otpRepository.findByEmail(Email);
         long minuteElapsed = ChronoUnit.MINUTES.between(otp.getCreated(), LocalDateTime.now());
         if (minuteElapsed > 5) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
@@ -252,7 +260,8 @@ public class AuthService {
                     .message("OTP timeout")
                     .build());
         }
-        if(Objects.equals(otp.getOtp(), request.getOtp())){User user = userRepository.findByEmail(request.getEmail()).get();
+        if(Objects.equals(otp.getOtp(), request.getOtp())){
+            User user = userRepository.findByEmail(Email).get();
         user.setChangePassword(true);
         userRepository.save(user);
         otpRepository.delete(otp);
@@ -293,7 +302,7 @@ public class AuthService {
             GoogleSignRequest googleSignRequest = mapper.readValue(response.body(), GoogleSignRequest.class);
             if(googleSignRequest != null) {
                 if(verifyGoogleToken(googleSignRequest)) {
-                    String email = googleSignRequest.email();
+                    String email = googleSignRequest.email().toLowerCase();
                     String name = googleSignRequest.name();
                     String message="Account created successfully";
                     if(!userRepository.existsByEmail(email)) {
@@ -335,7 +344,7 @@ public class AuthService {
      return false;}
 
     public ResponseEntity<?> ifRegistered(String Email){
-        if(userRepository.existsByEmail(Email)) {
+        if(userRepository.existsByEmail(Email.toLowerCase().trim())) {
             return ResponseEntity.ok().body(ResponseMessage
                 .builder()
                 .message("Go to login")
