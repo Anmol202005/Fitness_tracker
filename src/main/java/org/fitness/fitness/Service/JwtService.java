@@ -11,11 +11,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
+    private final RedisService redisService;
     //this should be minimum 256 bits encryption key
     private static final String SECRET_KEY = "27bc5821f84be3dca9696869c6248a4bbbf23e30906f1a6c7c2b79ce30e3c32a";
     public static String extractemail(String token) {
@@ -27,7 +30,9 @@ public class JwtService {
     }
     //if you want to generate token using only userdetails
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        String token = generateToken(new HashMap<>(), userDetails);
+        redisService.storeToken(userDetails.getUsername(),token,60*60*24);
+        return token;
     }
     public String generateToken(
             Map<String, Object> extraClaims,
@@ -48,7 +53,7 @@ public class JwtService {
     //method which can identify is token valid or not
     public boolean isTokenValid(String token , UserDetails userDetails) {
         final String username = extractemail(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token) && redisService.isTokenValid(userDetails.getUsername(), token);
     }
 
     private boolean isTokenExpired(String token) {

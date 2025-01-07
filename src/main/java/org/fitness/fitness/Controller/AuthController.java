@@ -10,8 +10,10 @@ import org.fitness.fitness.Model.DTO.OAuthToken;
 import org.fitness.fitness.Model.DTO.OtpValidation;
 import org.fitness.fitness.Model.DTO.RegisterRequest;
 import org.fitness.fitness.Model.DTO.ResetPassword;
+import org.fitness.fitness.Model.DTO.ResponseMessage;
 import org.fitness.fitness.Repository.UserRepository;
 import org.fitness.fitness.Service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -65,7 +67,14 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(
           @Valid @RequestBody ResetPassword request
     ){
+        try {
         return authService.resetPassword(request);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ResponseMessage.builder()
+                                 .message(e.getMessage())
+                                 .build());
+    }
     }
 
     @PostMapping("oauth/success")

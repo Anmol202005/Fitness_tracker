@@ -41,6 +41,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
@@ -233,6 +234,7 @@ public class AuthService {
             user.setChangePassword(false);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
+            redisService.invalidateAllTokens(Email);
             return ResponseEntity.ok().body(ResponseMessage
                     .builder()
                     .message("Password Changed Successfully")
