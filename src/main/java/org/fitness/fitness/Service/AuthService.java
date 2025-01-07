@@ -312,14 +312,14 @@ public class AuthService {
 //                if(verifyGoogleToken(googleSignRequest)) {
                     String email = token;
 
-                    String message="Account created successfully";
+                    String message="Login successful";
                     if(!userRepository.existsByEmail(email)) {
                         User user = new User();
                         user.setEmail(email);
                         user.setName("user");
                         user.setPassword("OAuth_USER");
                         userRepository.save(user);
-                        message="Login successful";
+                        message="Account created successful";
                     }
                     User user = userRepository.findByEmail(email).get();
                     var jwtToken = jwtService.generateToken(user);
