@@ -56,6 +56,17 @@ public class AuthService {
                     .build());
         } else if (userRepository.existsByEmailAndIsVerified(Email, false)) {
             var user = userRepository.findByEmail(Email);
+            if(otpRepository.existsByEmail(Email)) {
+                var otp=otpRepository.findByEmail(Email);
+                long secondElapsed = ChronoUnit.SECONDS.between(otp.getCreated(), LocalDateTime.now());
+                if(secondElapsed < 30) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Can't send OTP before 30 seconds")
+                    .build());
+                }
+                otpRepository.delete(otp);
+            }
 
             user.get().setName(request.getUserName());
             user.get().setPassword(passwordEncoder.encode(Email));
@@ -199,7 +210,8 @@ public class AuthService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.builder()
                                                                                      .message("OTP can not be send before 30 second")
                                                                                      .build());
-        }}
+        }
+        }
         else{ otp = new OTP();}
         String otp1 = generateotp();
         otp.setEmail(Email);
