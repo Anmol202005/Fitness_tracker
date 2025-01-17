@@ -10,7 +10,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
+
+@AllArgsConstructor
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Data
 @Entity
 public class Workout {
     @Id
@@ -24,7 +33,9 @@ public class Workout {
     @Column(nullable = false)
     private String type;
 
-    private Double duration;
+    private Double duration;   // minute
+
+    private Double calories;
 
     private LocalDate date;
 
