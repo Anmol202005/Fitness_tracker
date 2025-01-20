@@ -24,10 +24,11 @@ public class FoodLog {
 
     @ManyToOne
     @JoinColumn(name = "user_data_id")
-    private UserData userData;
+    private User user;
 
     private String foodName;
-    private Integer quantity;
+    private String calories;
+    private String description;
     private LocalDateTime logTime = LocalDateTime.now();
     private LocalDate date = LocalDate.now();
 }
