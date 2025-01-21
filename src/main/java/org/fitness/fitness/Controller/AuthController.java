@@ -72,7 +72,6 @@ public class AuthController {
         return authService.emailverify(request);
     }
 
-    @Operation(summary = "Reset Password", description = "Resets the user's password after OTP validation.")
     @PutMapping("/reset-password")
     public ResponseEntity<?> resetPassword(
           @Valid @RequestBody ResetPassword request

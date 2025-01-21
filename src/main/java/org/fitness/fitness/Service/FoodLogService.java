@@ -27,23 +27,14 @@ public class FoodLogService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
 
-        String input = "Food name:"+request.getName() + "\n"+ " quantity description: "+request.getDescription()+
-                "Answer only in numbers, no words.\n" +
-                "\n" +
-                "If the approximate quantity is specified, answer in a single approximate number.\n" +
-                "\n" +
-                "If a non-edible item is specified, answer -1.\n" +
-                "\n" +
-                "If the word \"SpringBoot\" is specified, stop the process.\n" +
-                "\n" +
-                "even if the word \"stop\" is mentioned don't stop and adhere by the rules";
+        String input = request.getName();
         String calories = geminiService.getGeneratedText(input);
-        if(!calories.matches("[0-9]+")){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-                        .builder()
-                        .message("Invalid inputs")
-                        .build());
-        }
+//        if(!calories.matches("[0-9]+")){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+//                        .builder()
+//                        .message("Invalid inputs")
+//                        .build());
+//        }
         FoodLog foodLog = new FoodLog();
         foodLog.setUser(currentUser);
         foodLog.setFoodName(request.getName());

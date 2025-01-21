@@ -34,12 +34,11 @@ public class WorkoutController {
      * @return ResponseEntity containing the result of the operation.
      */
     @Operation(summary = "Add a new workout", description = "Adds a new workout entry for the current user with type, duration, and date.")
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> addWorkout(
             @Parameter(description = "Type of the workout (e.g., running, cycling, etc.)") @RequestParam String type,
-            @Parameter(description = "Duration of the workout in minutes.") @RequestParam Double duration,
-            @Parameter(description = "The date of the workout in yyyy-MM-dd format.") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return workoutService.addWorkout(type, duration, date);
+            @Parameter(description = "Duration of the workout in minutes.") @RequestParam Double duration) {
+        return workoutService.addWorkout(type, duration);
     }
 
     /**
@@ -47,7 +46,7 @@ public class WorkoutController {
      * @return ResponseEntity containing a list of all workouts.
      */
     @Operation(summary = "Get all workouts", description = "Retrieves all workouts recorded for the current user.")
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<?> getAllWorkouts() {
         return workoutService.getAllWorkouts();
     }

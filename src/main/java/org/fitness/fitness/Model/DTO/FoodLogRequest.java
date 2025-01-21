@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FoodLogRequest {
-    String Name;
-    String Description;
+    private String name;
+    private String description;
 }

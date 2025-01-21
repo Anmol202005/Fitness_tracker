@@ -29,7 +29,7 @@ public class StepController {
      * @return ResponseEntity with success or failure message
      */
     @Operation(summary = "Add or Update Step Count", description = "Adds or updates the step count for the current authenticated user.")
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> addOrUpdateStepCount(
             @Parameter(description = "Number of steps taken by the user.") @RequestParam Integer stepCount) {
         return stepService.addOrUpdateStepCount(stepCount);
@@ -52,7 +52,7 @@ public class StepController {
      * @return ResponseEntity with a list of step counts
      */
     @Operation(summary = "Get All Step Counts", description = "Retrieves all step counts for the current authenticated user.")
-    @GetMapping
+    @GetMapping("get-all")
     public ResponseEntity<?> getAllStepCounts() {
         return stepService.getAllStepCounts();
     }

@@ -31,7 +31,7 @@ public class FoodLogController {
      * Add a new food log for the current user.
      */
     @Operation(summary = "Add a Food Log", description = "Adds a new food log for the current authenticated user.")
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> addFoodLog(
             @Parameter(description = "Details of the food log to be added.") @RequestBody FoodLogRequest foodLogRequest) {
         return foodLogService.foodLog(foodLogRequest);
@@ -41,7 +41,7 @@ public class FoodLogController {
      * Get all food logs for the current user.
      */
     @Operation(summary = "Get All Food Logs", description = "Retrieves all food logs for the current authenticated user.")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAllFoodLogs() {
         return foodLogService.getAllFoodLogs();
     }

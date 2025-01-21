@@ -1,11 +1,16 @@
 package org.fitness.fitness.Service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Random;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.AuthenticationRequest;
 import org.fitness.fitness.Model.DTO.AuthenticationResponse;
@@ -28,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.net.http.HttpRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +45,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
-    public static final String GOOGLE_CLIENT_ID1="1003392708014-m95f2ch72jsq6lgu1m6dbqpg8og260ke.apps.googleusercontent.com";
+    public static final String GOOGLE_CLIENT_ID1="960263820346-sivuehaobtd2k06esk5co9hjb7cnokft.apps.googleusercontent.com";
 
     public ResponseEntity<?> register(RegisterRequest request) {
         String Email = request.getEmail().toLowerCase().trim();
@@ -297,19 +303,19 @@ public class AuthService {
         return userDetails;
     }
     public ResponseEntity<?> success(String token) throws IOException, InterruptedException {
-//        HttpClient httpClient = HttpClient.newHttpClient();
-//            ObjectMapper mapper = new ObjectMapper();
-//            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//            HttpRequest request = HttpRequest.newBuilder()
-//                                             .uri(URI.create("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token))
-//                                             .GET()
-//                                             .build();
-//            System.out.println(request);
-//            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-//            System.out.println(response);
-//            GoogleSignRequest googleSignRequest = mapper.readValue(response.body(), GoogleSignRequest.class);
-//            if(googleSignRequest != null) {
-//                if(verifyGoogleToken(googleSignRequest)) {
+        HttpClient httpClient = HttpClient.newHttpClient();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            HttpRequest request = HttpRequest.newBuilder()
+                                             .uri(URI.create("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token))
+                                             .GET()
+                                             .build();
+            System.out.println(request);
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response);
+            GoogleSignRequest googleSignRequest = mapper.readValue(response.body(), GoogleSignRequest.class);
+            if(googleSignRequest != null) {
+                if(verifyGoogleToken(googleSignRequest)) {
                     String email = token;
 
                     String message="Login successful";
@@ -329,20 +335,20 @@ public class AuthService {
                      .message(message)
                      .user(createUserDetails(user))
                      .build());
-//                }
-//                else{
-//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-//                    .builder()
-//                    .message("Token either expired or INVALID")
-//                    .build());
-//                }
-//            }
-//            else{
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-//                    .builder()
-//                    .message("INVALID TOKEN")
-//                    .build());
-//            }
+                }
+                else{
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Token either expired or INVALID")
+                    .build());
+                }
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("INVALID TOKEN")
+                    .build());
+            }
     }
 
      private Boolean verifyGoogleToken(GoogleSignRequest request) {

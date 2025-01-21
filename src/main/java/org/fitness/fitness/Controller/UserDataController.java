@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/user-data")
 @RequiredArgsConstructor
-@Tag(name = "User Data", description = "APIs for managing user data such as personal details, health info, etc.")
 public class UserDataController {
 
     private final UserDataService userDataService;
@@ -28,10 +26,8 @@ public class UserDataController {
      * @param userDataDTO Data to be added
      * @return ResponseEntity with success or failure message
      */
-    @Operation(summary = "Add User Data", description = "Adds new user data like personal information, health stats, etc.")
-    @PostMapping
-    public ResponseEntity<?> addUserData(
-            @Parameter(description = "User data to be added, including personal and health-related details.") @RequestBody UserDataDTO userDataDTO) {
+    @PostMapping("/add")
+    public ResponseEntity<?> addData(@RequestBody UserDataDTO userDataDTO) {
         return userDataService.addUserData(userDataDTO);
     }
 
@@ -41,7 +37,7 @@ public class UserDataController {
      * @return ResponseEntity with success or failure message
      */
     @Operation(summary = "Update User Data", description = "Updates the existing user data like personal information, health stats, etc.")
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<?> updateUserData(
             @Parameter(description = "Updated user data, including personal and health-related details.") @RequestBody UserDataDTO userDataDTO) {
         return userDataService.updateUserData(userDataDTO);
@@ -52,7 +48,7 @@ public class UserDataController {
      * @return ResponseEntity with user data
      */
     @Operation(summary = "Get User Data", description = "Retrieves the user data for the authenticated user.")
-    @GetMapping
+    @GetMapping("/getCurrentuser")
     public ResponseEntity<?> getUserData() {
         return userDataService.getUserData();
     }

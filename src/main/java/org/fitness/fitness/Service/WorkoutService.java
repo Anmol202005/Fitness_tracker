@@ -26,7 +26,7 @@ public class WorkoutService {
     /**
      * Add a new workout entry for the current user.
      */
-    public ResponseEntity<?> addWorkout(String type, Double duration, LocalDate date) {
+    public ResponseEntity<?> addWorkout(String type, Double duration) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
 
@@ -67,7 +67,7 @@ public class WorkoutService {
         workout.setUser(currentUser);
         workout.setType(type);
         workout.setDuration(duration);
-        workout.setDate(date);
+        workout.setDate(LocalDate.now());
         workout.setCalories(totalCalories);
 
         workoutRepository.save(workout);
@@ -75,7 +75,7 @@ public class WorkoutService {
         return ResponseEntity.ok().body(WorkoutResponse
                 .builder()
                 .message("Workout successfully added")
-                .totalCalories(totalCaloriesBurnedInDay(date))
+                .totalCalories(totalCaloriesBurnedInDay(LocalDate.now()))
                 .build());
     }
 
