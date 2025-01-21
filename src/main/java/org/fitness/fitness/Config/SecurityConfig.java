@@ -21,12 +21,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
                 // Enable CORS using GlobalCorsConfig
                 .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/auth/reset-password").authenticated()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",               // Swagger UI resources
+                                "/v3/api-docs/**",              // Swagger API documentation
+                                "/swagger-ui.html",             // Swagger UI page
+                                "/swagger-ui/index.html"        // Swagger index page
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 

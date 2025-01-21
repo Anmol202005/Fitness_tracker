@@ -13,7 +13,6 @@ import org.fitness.fitness.Model.Workout;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class AllWorkoutResponse {
     private List<Workout> workouts;
     private Double totalCalories;

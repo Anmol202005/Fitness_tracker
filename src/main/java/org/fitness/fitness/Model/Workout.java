@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 
 
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity

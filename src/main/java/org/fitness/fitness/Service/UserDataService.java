@@ -2,7 +2,6 @@ package org.fitness.fitness.Service;
 
 import java.util.Locale;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.ActivityLevel;
 import org.fitness.fitness.Model.DTO.ResponseMessage;
@@ -20,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class UserDataService {
     private final UserDataRepository userDataRepository;

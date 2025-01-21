@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.FoodLogRequest;
 import org.fitness.fitness.Model.DTO.ResponseMessage;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@AllArgsConstructor
 
 public class FoodLogService {
     final FoodLogRepository foodLogRepository;
