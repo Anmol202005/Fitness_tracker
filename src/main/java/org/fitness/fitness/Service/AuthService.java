@@ -1,20 +1,20 @@
 package org.fitness.fitness.Service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.AuthenticationRequest;
 import org.fitness.fitness.Model.DTO.AuthenticationResponse;
-import org.fitness.fitness.Model.DTO.GoogleSignRequest;
 import org.fitness.fitness.Model.DTO.OtpValidation;
 import org.fitness.fitness.Model.DTO.RegisterRequest;
 import org.fitness.fitness.Model.DTO.ResetPassword;
@@ -24,6 +24,7 @@ import org.fitness.fitness.Model.OTP;
 import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Repository.OtpRepository;
 import org.fitness.fitness.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,7 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.net.http.HttpRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -302,60 +302,6 @@ public class AuthService {
         userDetails.setEmail(user.getEmail());
         return userDetails;
     }
-    public ResponseEntity<?> success(String token) throws IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            HttpRequest request = HttpRequest.newBuilder()
-                                             .uri(URI.create("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token))
-                                             .GET()
-                                             .build();
-            System.out.println(request);
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response);
-            GoogleSignRequest googleSignRequest = mapper.readValue(response.body(), GoogleSignRequest.class);
-            if(googleSignRequest != null) {
-                if(verifyGoogleToken(googleSignRequest)) {
-                    String email = token;
-
-                    String message="Login successful";
-                    if(!userRepository.existsByEmail(email)) {
-                        User user = new User();
-                        user.setEmail(email);
-                        user.setName("user");
-                        user.setPassword("OAuth_USER");
-                        userRepository.save(user);
-                        message="Account created successful";
-                    }
-                    User user = userRepository.findByEmail(email).get();
-                    var jwtToken = jwtService.generateToken(user);
-                    return ResponseEntity.ok(AuthenticationResponse
-                     .builder()
-                     .token(jwtToken)
-                     .message(message)
-                     .user(createUserDetails(user))
-                     .build());
-                }
-                else{
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-                    .builder()
-                    .message("Token either expired or INVALID")
-                    .build());
-                }
-            }
-            else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
-                    .builder()
-                    .message("INVALID TOKEN")
-                    .build());
-            }
-    }
-
-     private Boolean verifyGoogleToken(GoogleSignRequest request) {
-        if(request.azp()!=null && request.exp()!=null) {
-        return request.azp().equals(GOOGLE_CLIENT_ID1) && request.exp() * 1000L >= System.currentTimeMillis();
-    }
-     return false;}
 
     public ResponseEntity<?> ifRegistered(String Email){
         if(userRepository.existsByEmail(Email.toLowerCase().trim())) {
@@ -370,5 +316,55 @@ public class AuthService {
                     .message("Go to SignUP")
                     .build());
         }
+    }
+
+    @Value("${google.client-id}")
+    private String googleClientId;
+
+    public GoogleIdToken verifyToken(String idToken) throws GeneralSecurityException, IOException {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+            new NetHttpTransport(),
+            new GsonFactory()
+        )
+        .setAudience(Collections.singletonList(googleClientId))
+        .build();
+
+        GoogleIdToken token = verifier.verify(idToken);
+        if (token != null) {
+            GoogleIdToken.Payload payload = token.getPayload();
+
+            // Additional token validation
+            if (!payload.getAudience().equals(googleClientId)) {
+                throw new IllegalArgumentException("Token audience mismatch");
+            }
+
+            return token;
+        }
+
+        throw new IllegalArgumentException("Invalid token");
+    }
+
+    public ResponseEntity<?> extractUserDetails(GoogleIdToken token) {
+
+        GoogleIdToken.Payload payload = token.getPayload();
+        String email = payload.getEmail();
+        String name = payload.getSubject();
+        String message="Login successful";
+                    if(!userRepository.existsByEmail(email)) {
+                        User user = new User();
+                        user.setEmail(email);
+                        user.setName(name);
+                        user.setPassword("OAuth_USER");
+                        userRepository.save(user);
+                        message="Account created successful";
+                    }
+                    User user = userRepository.findByEmail(email).get();
+                    var jwtToken = jwtService.generateToken(user);
+                    return ResponseEntity.ok(AuthenticationResponse
+                     .builder()
+                     .token(jwtToken)
+                     .message(message)
+                     .user(createUserDetails(user))
+                     .build());
     }
 }

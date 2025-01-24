@@ -1,7 +1,6 @@
 package org.fitness.fitness.Controller;
 
-import java.io.IOException;
-
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.AuthenticationRequest;
@@ -86,11 +85,16 @@ public class AuthController {
     }
     }
 
-    @Operation(summary = "OAuth Success", description = "Handles the successful OAuth token exchange.")
-    @PostMapping("oauth/success")
-    public ResponseEntity<?> success(@RequestBody OAuthToken request) throws IOException, InterruptedException {
-        return authService.success(request.getToken());
+    @PostMapping("/google-login")
+public ResponseEntity<?> googleLogin(@RequestBody OAuthToken request) {
+    try {
+        GoogleIdToken token = authService.verifyToken(request.getToken());
+        return authService.extractUserDetails(token);
+
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }
+}
 
     @Operation(summary = "Check if Email is Registered", description = "Checks if the provided email is already registered in the system.")
     @PostMapping("/ifRegistered")
