@@ -28,8 +28,15 @@ public class FoodLogService {
         var currentUser = (User) authentication.getPrincipal();
 
         String input = request.getName();
-        String calories = geminiService.getGeneratedText(input);
-//        if(!calories.matches("[0-9]+")){
+        String text = "Please provide the calories for the following food item:\n" +
+            "Food: " + input + "\n" +
+            "Portion: " + request.getDescription() + "\n" +
+            "Rules:\n" +
+            "1) Return only the numeric calorie value\n" +
+            "2) Provide the total calories for the specified portion\n" +
+            "4) Numbers only, no additional text";
+        String caloriesResponse = geminiService.getGeneratedText(text);
+        //        if(!calories.matches("[0-9]+")){
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
 //                        .builder()
 //                        .message("Invalid inputs")
@@ -38,9 +45,10 @@ public class FoodLogService {
         FoodLog foodLog = new FoodLog();
         foodLog.setUser(currentUser);
         foodLog.setFoodName(request.getName());
+        String calories = caloriesResponse.replace("\n", "").trim();
         foodLog.setCalories(calories);
         foodLog.setDescription(request.getDescription());
-        foodLogRepository.save(foodLog);
+
 
         return ResponseEntity.ok(foodLog);
     }
