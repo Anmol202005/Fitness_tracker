@@ -19,6 +19,7 @@ public class Exercise {
     private Integer reps;
     private Integer duration;
     private Integer restTime;
+    private String targetBody;
 
     @ManyToMany(mappedBy = "exercises")
     private List<WorkoutPlan> workoutPlans;

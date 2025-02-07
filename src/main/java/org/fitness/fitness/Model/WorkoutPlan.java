@@ -2,6 +2,7 @@ package org.fitness.fitness.Model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ public class WorkoutPlan {
     private String name;
     private String description;
     private FitnessGoal goal;
+    private String targetBodyPart;
 
      @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
@@ -32,5 +34,6 @@ public class WorkoutPlan {
         joinColumns = @JoinColumn(name = "workout_plan_id"),
         inverseJoinColumns = @JoinColumn(name = "exercise_id")
     )
+     @JsonIgnore
     private List<Exercise> exercises;
 }
