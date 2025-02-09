@@ -350,10 +350,11 @@ public class AuthService {
         String email = payload.getEmail();
         String name = payload.getSubject();
         String message="Login successful";
-                    if(!userRepository.existsByEmail(email)) {
+                    if(!userRepository.existsByEmailAndIsVerified(email,true)) {
                         User user = new User();
                         user.setEmail(email);
                         user.setName(name);
+                        user.setIsVerified(true);
                         user.setPassword("OAuth_USER");
                         userRepository.save(user);
                         message="Account created successful";
