@@ -304,7 +304,7 @@ public class AuthService {
     }
 
     public ResponseEntity<?> ifRegistered(String Email){
-        if(userRepository.existsByEmail(Email.toLowerCase().trim())) {
+        if(userRepository.existsByEmailAndIsVerified(Email.toLowerCase().trim(), true)) {
             return ResponseEntity.ok().body(ResponseMessage
                 .builder()
                 .message("Go to login")
