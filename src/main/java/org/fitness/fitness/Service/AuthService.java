@@ -348,7 +348,7 @@ public class AuthService {
 
         GoogleIdToken.Payload payload = token.getPayload();
         String email = payload.getEmail();
-        String name = payload.getSubject();
+        String name = (String) payload.get("name");
         String message="Login successful";
                     if(!userRepository.existsByEmailAndIsVerified(email,true)) {
                         User user = new User();
@@ -361,6 +361,8 @@ public class AuthService {
                     }
                     User user = userRepository.findByEmail(email).get();
                     var jwtToken = jwtService.generateToken(user);
+                    System.out.println("Google Token Payload: " + payload);
+
                     return ResponseEntity.ok(AuthenticationResponse
                      .builder()
                      .token(jwtToken)
