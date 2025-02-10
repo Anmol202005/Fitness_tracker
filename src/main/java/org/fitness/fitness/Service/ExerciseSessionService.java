@@ -67,7 +67,7 @@ public class ExerciseSessionService {
     Integer calories = 0;
     LocalDate today = LocalDate.now();
 
-    List<Exercise> exercises;
+    List<ExerciseSession> exercises ;
 
     if (i == 0) { // Calories burned today
         exercises = exerciseSessionRepository.findByUserIdAndIsCompletedTrueAndDate(currentUser.getUserId(), today);
@@ -81,8 +81,8 @@ public class ExerciseSessionService {
         return ResponseEntity.badRequest().body("Invalid input! Use 0 for today, 1 for this week, or 2 for this month.");
     }
 
-    for (Exercise exercise : exercises) {
-        calories += exercise.getCalories();
+    for (ExerciseSession exercise : exercises) {
+        calories += exercise.getExercise().getCalories();
     }
 
     return ResponseEntity.ok().body(CalorieBurnedResponse
