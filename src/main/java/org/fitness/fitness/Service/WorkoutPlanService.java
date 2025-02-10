@@ -101,6 +101,7 @@ public class WorkoutPlanService {
             else {
                 response.setNumberOfExercisesCompleted("0");
             }
+            responses.add(response);
         }
         return ResponseEntity.ok(responses);
     }
