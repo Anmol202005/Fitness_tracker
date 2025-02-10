@@ -39,8 +39,7 @@ public class ExerciseSessionService {
         session.setExercise(exerciseOpt.get());
         session.setCompleted(false);
 
-        exerciseSessionRepository.save(session);
-        return ResponseEntity.ok("Exercise session started.");
+        return ResponseEntity.ok(exerciseSessionRepository.save(session));
     }
 
     /**
