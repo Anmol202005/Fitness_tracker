@@ -29,7 +29,6 @@ public class UserData {
     private Integer weight;
     private DietType dietType;
     private FitnessGoal fitnessGoal;
-    private FoodCategory foodCategory = FoodCategory.VEG;
     private ActivityLevel activityLevel;
     private Integer waterGoal;
     private Integer sleepGoal;

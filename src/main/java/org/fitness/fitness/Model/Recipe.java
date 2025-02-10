@@ -39,7 +39,7 @@ public class Recipe {
     private RecipeType recipeType;
 
     @Enumerated(EnumType.STRING)
-    private FoodCategory foodCategory;
+    private DietType foodCategory;
 
     @Column(length = 2000)
     private String description;

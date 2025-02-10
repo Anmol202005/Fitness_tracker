@@ -1,5 +1,5 @@
 package org.fitness.fitness.Model;
 
 public enum DietType{
-    VEGAN,BALANCED,VEG,NON_VEG
+    VEGAN,VEG,NON_VEG
 }

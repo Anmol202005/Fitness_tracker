@@ -2,7 +2,7 @@ package org.fitness.fitness.Service;
 
 import java.util.List;
 
-import org.fitness.fitness.Model.FoodCategory;
+import org.fitness.fitness.Model.DietType;
 import org.fitness.fitness.Model.Recipe;
 import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Repository.RecipeRepository;
@@ -25,7 +25,7 @@ public class RecipeService {
     public ResponseEntity<?> getRecommendedRecipe(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
-        FoodCategory category = userDataRepository.getByUser(currentUser).getFoodCategory();
+        DietType category = userDataRepository.getByUser(currentUser).getDietType();
         List<Recipe> recipes = recipeRepository.findByFoodCategory(category);
         return ResponseEntity.ok(recipes);
     }
