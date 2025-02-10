@@ -1,5 +1,6 @@
 package org.fitness.fitness.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,8 @@ public class WorkoutPlanService {
         FitnessGoal userGoal = userDataRepository.getByUser(currentUser).getFitnessGoal();
         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
         List<WorkoutPlan> plan = workoutPlanRepository.findByGoal(userGoal);
-        List<WorkOutPlanResponse> responses= List.of();
+        List<WorkOutPlanResponse> responses = new ArrayList<>();
+
         for (WorkoutPlan workoutPlan : plan) {
             WorkOutPlanResponse response = new WorkOutPlanResponse();
             response.setWorkoutId(workoutPlan.getId());
@@ -85,7 +87,7 @@ public class WorkoutPlanService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
         List<WorkoutPlan> plan = workoutPlanRepository.findAll();
-        List<WorkOutPlanResponse> responses= List.of();
+        List<WorkOutPlanResponse> responses = new ArrayList<>();
         for (WorkoutPlan workoutPlan : plan) {
             WorkOutPlanResponse response = new WorkOutPlanResponse();
             response.setWorkoutId(workoutPlan.getId());
