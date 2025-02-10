@@ -78,4 +78,43 @@ public class ExerciseService {
                     .build());
 
     }
+
+    public ResponseEntity<?> searchExercises(String keyword) {
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var currentUser = (User) authentication.getPrincipal();
+        List<Exercise> exercises = exerciseRepository.findByNameContainingIgnoreCaseOrTargetBodyContainingIgnoreCase(
+                keyword.toLowerCase(Locale.ROOT),
+                keyword.toLowerCase(Locale.ROOT)
+        );
+
+        if (exercises.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseMessage
+                    .builder()
+                    .message("No exercises found")
+                    .build());
+        }
+         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
+        int point =0;
+        if(userLevel == ActivityLevel.BEGINNER){
+            point = 10;
+        }
+        if( userLevel == ActivityLevel.ADVANCED){
+            point = -5;
+        }
+        List<Exercise> finalExercises = new ArrayList<>();
+        for (Exercise exercise : exercises) {
+            if(exercise.getReps()!=null){
+                exercise.setReps(exercise.getReps()-point);
+            }
+            else{
+                exercise.setDuration(exercise.getDuration()-point);
+            }
+            finalExercises.add(exercise);
+        }
+
+        return ResponseEntity.ok(ExercisesDto
+                .builder()
+                .exercises(finalExercises)
+                .build());
+    }
 }
