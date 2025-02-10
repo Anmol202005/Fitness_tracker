@@ -67,7 +67,7 @@ public class WorkoutPlanService {
             point = -5;
         }
         List<Exercise> exercises = workoutPlan.getExercises();
-        List<Exercise> finalExercises = List.of();
+        List<Exercise> finalExercises = new ArrayList<>();
         for (Exercise exercise : exercises) {
             if(exercise.getReps()!=null){
                 exercise.setReps(exercise.getReps()-point);
