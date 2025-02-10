@@ -1,12 +1,14 @@
 package org.fitness.fitness.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.fitness.fitness.Model.ActivityLevel;
 import org.fitness.fitness.Model.DTO.CalorieBurnedResponse;
 import org.fitness.fitness.Model.Exercise;
 import org.fitness.fitness.Model.ExerciseSession;
 import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Repository.ExerciseRepository;
 import org.fitness.fitness.Repository.ExerciseSessionRepository;
+import org.fitness.fitness.Repository.UserDataRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class ExerciseSessionService {
     private final ExerciseSessionRepository exerciseSessionRepository;
     private final ExerciseRepository exerciseRepository;
+    private final UserDataRepository userDataRepository;
 
     /**
      * Start an exercise session for the current user.
@@ -30,13 +33,28 @@ public class ExerciseSessionService {
         var currentUser = (User) authentication.getPrincipal();
 
         Optional<Exercise> exerciseOpt = exerciseRepository.findById(exerciseId);
+        Exercise exercise = exerciseOpt.get();
         if (exerciseOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Exercise not found.");
+        }
+         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
+        int point =0;
+        if(userLevel == ActivityLevel.BEGINNER){
+            point = 10;
+        }
+        if( userLevel == ActivityLevel.ADVANCED){
+            point = -5;
+        }
+        if(exercise.getReps()!=null){
+            exercise.setReps(exercise.getReps()-point);
+        }
+        else {
+            exercise.setDuration(exercise.getDuration()-point);
         }
 
         ExerciseSession session = new ExerciseSession();
         session.setUserId(currentUser.getUserId());
-        session.setExercise(exerciseOpt.get());
+        session.setExercise(exercise);
         session.setCompleted(false);
 
         return ResponseEntity.ok(exerciseSessionRepository.save(session));
