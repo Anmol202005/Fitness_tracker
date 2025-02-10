@@ -2,6 +2,7 @@ package org.fitness.fitness.Model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -22,6 +23,7 @@ public class Exercise {
     private String targetBody;
     private Integer calories;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "exercises")
     private List<WorkoutPlan> workoutPlans;
 }
