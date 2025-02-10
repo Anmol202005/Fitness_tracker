@@ -42,10 +42,12 @@ public class WorkoutPlanService {
             if(workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId()).isPresent()){
                 var session = workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId());
                 response.setNumberOfExercisesCompleted(String.valueOf(session.get().getCompletedExercises()));
+
             }
             else {
                 response.setNumberOfExercisesCompleted("0");
             }
+            responses.add(response);
         }
         return ResponseEntity.ok(responses);
     }
