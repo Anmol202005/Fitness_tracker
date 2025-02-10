@@ -1,6 +1,8 @@
 package org.fitness.fitness.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.ActivityLevel;
@@ -51,7 +53,7 @@ public class ExerciseService {
     public ResponseEntity<?> getExerciseByBodyPart(String bodyPart) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
-        List<Exercise> exercises = exerciseRepository.findByTargetBody(bodyPart);
+        List<Exercise> exercises = exerciseRepository.findByTargetBody(bodyPart.toLowerCase(Locale.ROOT));
         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
         int point =0;
         if(userLevel == ActivityLevel.BEGINNER){
@@ -60,7 +62,7 @@ public class ExerciseService {
         if( userLevel == ActivityLevel.ADVANCED){
             point = -5;
         }
-        List<Exercise> finalExercises = List.of();
+        List<Exercise> finalExercises = new ArrayList<>();
         for (Exercise exercise : exercises) {
             if(exercise.getReps()!=null){
                 exercise.setReps(exercise.getReps()-point);
