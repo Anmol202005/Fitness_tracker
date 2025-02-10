@@ -20,6 +20,7 @@ public class Exercise {
     private Integer duration;
     private Integer restTime;
     private String targetBody;
+    private Integer calories;
 
     @ManyToMany(mappedBy = "exercises")
     private List<WorkoutPlan> workoutPlans;

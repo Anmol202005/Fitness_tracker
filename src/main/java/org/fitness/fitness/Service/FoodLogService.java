@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.fitness.fitness.Model.DTO.CalorieResponse;
 import org.fitness.fitness.Model.DTO.FoodLogRequest;
 import org.fitness.fitness.Model.DTO.ResponseMessage;
 import org.fitness.fitness.Model.FoodLog;
@@ -53,21 +54,38 @@ public class FoodLogService {
         return ResponseEntity.ok(foodLog);
     }
 
-    public Double totalCaloriesForDay(LocalDate date) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var currentUser = (User) authentication.getPrincipal();
+    public ResponseEntity<?> totalCaloriesForDay(int i) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    var currentUser = (User) authentication.getPrincipal();
+    LocalDate today = LocalDate.now();
+    LocalDate startDate;
 
-        List<FoodLog> foodLogs = foodLogRepository.findByUserAndDate(currentUser, date);
-        double totalCalories = 0;
-        for (FoodLog foodLog : foodLogs) {
-            try {
-                totalCalories += Double.parseDouble(foodLog.getCalories());
-            } catch (NumberFormatException e) {
-                throw new RuntimeException();
-            }
-        }
-        return totalCalories;
+    if (i == 0) { // Calories for today
+        startDate = today;
+    } else if (i == 1) { // Calories for the past week
+        startDate = today.minusDays(7);
+    } else if (i == 2) { // Calories for the past month
+        startDate = today.minusDays(30);
+    } else {
+        return ResponseEntity.badRequest().body("Invalid input! Use 0 for today, 1 for this week, or 2 for this month.");
     }
+
+    List<FoodLog> foodLogs = foodLogRepository.findByUserAndDateBetween(currentUser, startDate, today);
+    double totalCalories = 0;
+
+    for (FoodLog foodLog : foodLogs) {
+        try {
+            totalCalories += Double.parseDouble(foodLog.getCalories());
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid calorie format in food log.");
+        }
+    }
+     return ResponseEntity.ok().body(CalorieResponse
+                        .builder()
+                        .calorieConsumed(totalCalories)
+                        .build());
+}
+
     public ResponseEntity<?> deleteFoodLog(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
@@ -116,6 +134,4 @@ public class FoodLogService {
         List<FoodLog> foodLogs = foodLogRepository.findByUser(currentUser);
         return ResponseEntity.ok(foodLogs);
     }
-
-
 }

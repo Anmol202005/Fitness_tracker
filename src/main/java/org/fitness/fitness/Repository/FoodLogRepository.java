@@ -14,4 +14,6 @@ public interface FoodLogRepository extends JpaRepository<FoodLog, Long> {
     List<FoodLog> findByUserAndDate(User currentUser, LocalDate date);
 
     List<FoodLog> findByUser(User currentUser);
+
+    List<FoodLog> findByUserAndDateBetween(User currentUser, LocalDate startDate, LocalDate today);
 }

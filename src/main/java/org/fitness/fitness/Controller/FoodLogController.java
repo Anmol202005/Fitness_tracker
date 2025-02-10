@@ -3,7 +3,6 @@ package org.fitness.fitness.Controller;
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.FoodLogRequest;
 import org.fitness.fitness.Service.FoodLogService;
-import org.fitness.fitness.Model.DTO.ResponseMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,15 +79,8 @@ public class FoodLogController {
     /**
      * Get the total calories consumed for a specific day.
      */
-    @Operation(summary = "Get Total Calories for the Day", description = "Retrieves the total calories consumed by the current authenticated user on a specific date.")
-    @GetMapping("/totalCalories/date/{date}")
-    public ResponseEntity<?> getTotalCaloriesForDay(
-            @Parameter(description = "The date to calculate the total calories for.") @PathVariable("date") String date) {
-        LocalDate localDate = LocalDate.parse(date);
-        double totalCalories = foodLogService.totalCaloriesForDay(localDate);
-        return ResponseEntity.ok().body(ResponseMessage
-                .builder()
-                .message("Total calories consumed for the day: " + totalCalories)
-                .build());
-    }
+   @GetMapping("/food/calories/{type}")
+   public ResponseEntity<?> getTotalFoodCalories(@PathVariable int type) {
+    return foodLogService.totalCaloriesForDay(type);
+}
 }

@@ -12,6 +12,7 @@ import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Model.WorkoutPlan;
 import org.fitness.fitness.Repository.UserDataRepository;
 import org.fitness.fitness.Repository.WorkoutPlanRepository;
+import org.fitness.fitness.Repository.WorkoutSessionRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class WorkoutPlanService {
     private final UserDataRepository userDataRepository;
     private final WorkoutPlanRepository workoutPlanRepository;
+    private final WorkoutSessionRepository workoutSessionRepository;
 
     public ResponseEntity<?> getWorkoutPlanForUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -28,10 +30,24 @@ public class WorkoutPlanService {
         FitnessGoal userGoal = userDataRepository.getByUser(currentUser).getFitnessGoal();
         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
         List<WorkoutPlan> plan = workoutPlanRepository.findByGoal(userGoal);
-        return ResponseEntity.ok().body(WorkOutPlanResponse
-                    .builder()
-                    .plans(plan)
-                    .build());
+        List<WorkOutPlanResponse> responses= List.of();
+        for (WorkoutPlan workoutPlan : plan) {
+            WorkOutPlanResponse response = new WorkOutPlanResponse();
+            response.setWorkoutId(workoutPlan.getId());
+            response.setName(workoutPlan.getName());
+            response.setTargetBodyPart(workoutPlan.getTargetBodyPart());
+            response.setNumberOfExercises(String.valueOf(workoutPlan.getExercises().size()));
+            response.setGoal(workoutPlan.getGoal());
+            response.setDescription(workoutPlan.getDescription());
+            if(workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId()).isPresent()){
+                var session = workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId());
+                response.setNumberOfExercisesCompleted(String.valueOf(session.get().getCompletedExercises()));
+            }
+            else {
+                response.setNumberOfExercisesCompleted("0");
+            }
+        }
+        return ResponseEntity.ok(responses);
     }
 
     public ResponseEntity<?> getExercisesForWorkoutPlan(Long workoutPlanId) {
@@ -62,5 +78,30 @@ public class WorkoutPlanService {
                     .exercises(finalExercises)
                     .build());
     }
+
+    public ResponseEntity<?> getWorkoutPlans() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var currentUser = (User) authentication.getPrincipal();
+        List<WorkoutPlan> plan = workoutPlanRepository.findAll();
+        List<WorkOutPlanResponse> responses= List.of();
+        for (WorkoutPlan workoutPlan : plan) {
+            WorkOutPlanResponse response = new WorkOutPlanResponse();
+            response.setWorkoutId(workoutPlan.getId());
+            response.setName(workoutPlan.getName());
+            response.setTargetBodyPart(workoutPlan.getTargetBodyPart());
+            response.setNumberOfExercises(String.valueOf(workoutPlan.getExercises().size()));
+            response.setGoal(workoutPlan.getGoal());
+            response.setDescription(workoutPlan.getDescription());
+            if(workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId()).isPresent()){
+                var session = workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId());
+                response.setNumberOfExercisesCompleted(String.valueOf(session.get().getCompletedExercises()));
+            }
+            else {
+                response.setNumberOfExercisesCompleted("0");
+            }
+        }
+        return ResponseEntity.ok(responses);
+    }
+
 }
 
