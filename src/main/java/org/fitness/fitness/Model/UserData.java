@@ -32,5 +32,5 @@ public class UserData {
     private ActivityLevel activityLevel;
     private Integer waterGoal;
     private Integer sleepGoal;
-    private Integer stepGoal;
+    private Integer calorieGoal;
 }

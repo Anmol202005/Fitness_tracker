@@ -40,7 +40,7 @@ public class UserDataService {
         userData.setSleepGoal(userDataDTO.getSleepGoal());
         userData.setFitnessGoal(FitnessGoal.valueOf(userDataDTO
                 .getFitnessGoal().toUpperCase(Locale.ROOT)));
-        userData.setStepGoal(userDataDTO.getStepGoal());
+        userData.setCalorieGoal(userDataDTO.getCalorieGoal());
         userData.setWaterGoal(userDataDTO.getWaterGoal());
 
         userDataRepository.save(userData);
@@ -85,8 +85,8 @@ public class UserDataService {
         if (userDataDTO.getFitnessGoal() != null) {
             userData.setFitnessGoal(FitnessGoal.valueOf(userDataDTO.getFitnessGoal().toUpperCase(Locale.ROOT)));
         }
-        if (userDataDTO.getStepGoal() != null) {
-            userData.setStepGoal(userDataDTO.getStepGoal());
+        if (userDataDTO.getCalorieGoal() != null) {
+            userData.setCalorieGoal(userDataDTO.getCalorieGoal());
         }
         if (userDataDTO.getWaterGoal() != null) {
             userData.setWaterGoal(userDataDTO.getWaterGoal());

@@ -17,6 +17,6 @@ public class UserDataDTO {
     private String activityLevel;
     private Integer waterGoal;
     private Integer sleepGoal;
-    private Integer stepGoal;
+    private Integer calorieGoal;
 }
 
