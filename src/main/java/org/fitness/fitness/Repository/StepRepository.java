@@ -12,7 +12,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StepRepository extends JpaRepository<Step, Long> {
 
+    List<Step> findByUser(User currentUser);
+
     Optional<Step> findByUserAndDate(User currentUser, LocalDate today);
 
-    List<Step> findByUser(User currentUser);
+    Optional<Step> findByUserAndDateBetween(User currentUser, LocalDate weekStart, LocalDate today);
 }

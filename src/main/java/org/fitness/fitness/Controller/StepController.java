@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Service.StepService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,10 +41,9 @@ public class StepController {
      * @return ResponseEntity with step count or error message
      */
     @Operation(summary = "Get Step Count by Date", description = "Retrieves the step count for the current authenticated user on a specific date.")
-    @GetMapping("/by-date")
-    public ResponseEntity<?> getStepCountByDate(
-            @Parameter(description = "The date for which the step count is requested.") @RequestParam LocalDate date) {
-        return stepService.getStepCountByDate(date);
+    @GetMapping("/get/{i}")
+    public ResponseEntity<?> getStepCountByDate( @PathVariable int i) {
+        return stepService.getStepCountForUser(i);
     }
 
     /**

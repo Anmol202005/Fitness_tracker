@@ -3,6 +3,7 @@ package org.fitness.fitness.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.DTO.ResponseMessage;
+import org.fitness.fitness.Model.DTO.StepResponse;
 import org.fitness.fitness.Model.Step;
 import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Repository.StepRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -79,5 +81,47 @@ public class StepService {
 
         return ResponseEntity.ok().body(steps);
     }
+
+    public ResponseEntity<?> getStepCountForUser(int i){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var currentUser = (User) authentication.getPrincipal();
+        int step = 0;
+        LocalDate today = LocalDate.now();
+
+        if (i == 0) {
+        Optional<Step> steps = stepRepository.findByUserAndDate(currentUser, today);
+        int stepCount = steps.map(Step::getStepCount).orElse(0);
+         return ResponseEntity.ok().body(StepResponse
+                    .builder()
+                    .stepCount(step)
+                    .build());
+
+    } else if (i == 1) {
+        LocalDate weekStart = today.minusDays(6);
+        Optional<Step> steps = stepRepository.findByUserAndDateBetween(currentUser, weekStart, today);
+        int stepCount = steps.map(Step::getStepCount).orElse(0);
+        return ResponseEntity.ok().body(StepResponse
+                    .builder()
+                    .stepCount(step)
+                    .build());
+
+    } else if (i == 2) {
+        LocalDate monthStart = today.withDayOfMonth(1);
+        Optional<Step> steps = stepRepository.findByUserAndDateBetween(currentUser, monthStart, today);
+        int stepCount = steps.map(Step::getStepCount).orElse(0);
+         return ResponseEntity.ok().body(StepResponse
+                    .builder()
+                    .stepCount(step)
+                    .build());
+
+    }
+    else {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage
+                    .builder()
+                    .message("Invalid Input nigga")
+                    .build());
+    }
+    }
 }
+
 
