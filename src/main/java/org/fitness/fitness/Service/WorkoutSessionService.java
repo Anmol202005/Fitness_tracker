@@ -9,6 +9,7 @@ import org.fitness.fitness.Model.WorkoutSession;
 import org.fitness.fitness.Repository.ExerciseRepository;
 import org.fitness.fitness.Repository.ExerciseSessionRepository;
 import org.fitness.fitness.Repository.UserDataRepository;
+import org.fitness.fitness.Repository.WorkoutPlanRepository;
 import org.fitness.fitness.Repository.WorkoutSessionRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,11 +28,12 @@ public class WorkoutSessionService {
     private final ExerciseRepository exerciseRepository;
     private final ExerciseSessionRepository exerciseSessionRepository;
     private final UserDataRepository userDataRepository;
+    private final WorkoutPlanRepository workoutPlanRepository;
 
     public ResponseEntity<?> startWorkout(Long workoutPlanId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
-
+        var workoutPlan = workoutPlanRepository.findById(workoutPlanId).get();
         // Check if an active session already exists for this workout
         var existingSession = sessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlanId);
         if (existingSession.isPresent()) {
@@ -42,6 +45,9 @@ public class WorkoutSessionService {
                 .workoutPlanId(workoutPlanId)
                 .startTime(LocalDateTime.now())
                 .completedExercises(0)
+                .incompleteExerciseId(workoutPlan.getExercises().stream()
+                                                 .map(Exercise::getId)
+                                                 .collect(Collectors.toList()))
                 .isCompleted(false)
                 .build();
 
