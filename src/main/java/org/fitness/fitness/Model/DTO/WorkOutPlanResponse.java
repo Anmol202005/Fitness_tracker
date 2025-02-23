@@ -1,5 +1,7 @@
 package org.fitness.fitness.Model.DTO;
 
+import java.util.List;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,4 +26,5 @@ public class WorkOutPlanResponse {
     private String targetBodyPart;
     private String numberOfExercises;
     private String numberOfExercisesCompleted;
+    private List<Long> incompleteExerciseIds;
 }

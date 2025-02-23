@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,5 +28,6 @@ public class WorkoutSession {
     private Long workoutPlanId;
     private LocalDateTime startTime;
     private int completedExercises;
+    private List<Long> incompleteExerciseId;
     private boolean isCompleted;
 }

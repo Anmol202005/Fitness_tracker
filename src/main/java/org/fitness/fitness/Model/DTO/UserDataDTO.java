@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserDataDTO {
+    private String name;
     private String gender;
     private Integer age;
     private Integer height;
@@ -16,7 +17,8 @@ public class UserDataDTO {
     private String fitnessGoal;
     private String activityLevel;
     private Integer waterGoal;
-    private Integer sleepGoal;
+    private Integer stepGoal;
     private Integer calorieGoal;
+    private Integer coins;
 }
 

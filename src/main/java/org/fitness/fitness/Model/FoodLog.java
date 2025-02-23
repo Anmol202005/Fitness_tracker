@@ -25,7 +25,7 @@ public class FoodLog {
     @ManyToOne
     @JoinColumn(name = "user_data_id")
     private User user;
-
+    private MealType mealType;
     private String foodName;
     private String calories;
     private String description;

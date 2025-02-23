@@ -12,6 +12,7 @@ import org.fitness.fitness.Model.Gender;
 import org.fitness.fitness.Model.User;
 import org.fitness.fitness.Model.UserData;
 import org.fitness.fitness.Repository.UserDataRepository;
+import org.fitness.fitness.Repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDataService {
     private final UserDataRepository userDataRepository;
+    private final UserRepository userRepository;
 
     public ResponseEntity<?> addUserData(UserDataDTO userDataDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -37,7 +39,7 @@ public class UserDataService {
                 .getActivityLevel().toUpperCase(Locale.ROOT)));
         userData.setDietType(DietType.valueOf(userDataDTO
                 .getDietType().toUpperCase(Locale.ROOT)));
-        userData.setSleepGoal(userDataDTO.getSleepGoal());
+        userData.setStepGoal(userDataDTO.getStepGoal());
         userData.setFitnessGoal(FitnessGoal.valueOf(userDataDTO
                 .getFitnessGoal().toUpperCase(Locale.ROOT)));
         userData.setCalorieGoal(userDataDTO.getCalorieGoal());
@@ -61,6 +63,10 @@ public class UserDataService {
                     .build());
         }
         UserData userData = userDataRepository.getByUser(currentUser);
+        if (userDataDTO.getName() != null) {
+            currentUser.setName(userDataDTO.getName());
+            userRepository.save(currentUser);
+        }
         if (userDataDTO.getAge() != null) {
             userData.setAge(userDataDTO.getAge());
         }
@@ -79,8 +85,8 @@ public class UserDataService {
         if (userDataDTO.getDietType() != null) {
             userData.setDietType(DietType.valueOf(userDataDTO.getDietType().toUpperCase(Locale.ROOT)));
         }
-        if (userDataDTO.getSleepGoal() != null) {
-            userData.setSleepGoal(userDataDTO.getSleepGoal());
+        if (userDataDTO.getStepGoal() != null) {
+            userData.setStepGoal(userDataDTO.getStepGoal());
         }
         if (userDataDTO.getFitnessGoal() != null) {
             userData.setFitnessGoal(FitnessGoal.valueOf(userDataDTO.getFitnessGoal().toUpperCase(Locale.ROOT)));

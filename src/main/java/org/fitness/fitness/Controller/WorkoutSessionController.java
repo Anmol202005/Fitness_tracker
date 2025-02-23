@@ -21,8 +21,8 @@ public class WorkoutSessionController {
     }
 
     @PostMapping("/complete-exercise")
-    public ResponseEntity<?> completeExercise(@RequestParam Long workoutPlanId) {
-        return sessionService.completeExercise(workoutPlanId);
+    public ResponseEntity<?> completeExercise(@RequestParam Long workoutPlanId, Long exerciseId) {
+        return sessionService.completeExercise(workoutPlanId, exerciseId);
     }
 
     @PostMapping("/finish")

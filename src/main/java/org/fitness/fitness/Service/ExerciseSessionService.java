@@ -1,7 +1,6 @@
 package org.fitness.fitness.Service;
 
 import lombok.RequiredArgsConstructor;
-import org.fitness.fitness.Model.ActivityLevel;
 import org.fitness.fitness.Model.DTO.CalorieBurnedResponse;
 import org.fitness.fitness.Model.Exercise;
 import org.fitness.fitness.Model.ExerciseSession;
@@ -36,20 +35,6 @@ public class ExerciseSessionService {
         Exercise exercise = exerciseOpt.get();
         if (exerciseOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Exercise not found.");
-        }
-         ActivityLevel userLevel = userDataRepository.getByUser(currentUser).getActivityLevel();
-        int point =0;
-        if(userLevel == ActivityLevel.BEGINNER){
-            point = 10;
-        }
-        if( userLevel == ActivityLevel.ADVANCED){
-            point = -5;
-        }
-        if(exercise.getReps()!=null){
-            exercise.setReps(exercise.getReps()-point);
-        }
-        else {
-            exercise.setDuration(exercise.getDuration()-point);
         }
 
         ExerciseSession session = new ExerciseSession();

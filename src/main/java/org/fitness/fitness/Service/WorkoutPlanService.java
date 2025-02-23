@@ -2,6 +2,7 @@ package org.fitness.fitness.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.fitness.fitness.Model.ActivityLevel;
@@ -44,10 +45,13 @@ public class WorkoutPlanService {
             if(workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId()).isPresent()){
                 var session = workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId());
                 response.setNumberOfExercisesCompleted(String.valueOf(session.get().getCompletedExercises()));
-
+                response.setIncompleteExerciseIds(session.get().getIncompleteExerciseId());
             }
             else {
                 response.setNumberOfExercisesCompleted("0");
+                response.setIncompleteExerciseIds(workoutPlan.getExercises().stream()
+                                   .map(Exercise::getId)
+                                   .collect(Collectors.toList()));
             }
             responses.add(response);
         }
@@ -99,9 +103,13 @@ public class WorkoutPlanService {
             if(workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId()).isPresent()){
                 var session = workoutSessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlan.getId());
                 response.setNumberOfExercisesCompleted(String.valueOf(session.get().getCompletedExercises()));
+                response.setIncompleteExerciseIds(session.get().getIncompleteExerciseId());
             }
             else {
                 response.setNumberOfExercisesCompleted("0");
+                response.setIncompleteExerciseIds(workoutPlan.getExercises().stream()
+                                   .map(Exercise::getId)
+                                   .collect(Collectors.toList()));
             }
             responses.add(response);
         }
