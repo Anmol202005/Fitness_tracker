@@ -88,7 +88,7 @@ public class WorkoutSessionService {
         eXsession.setExercise(exercise);
         eXsession.setCompleted(true);
         exerciseSessionRepository.save(eXsession);
-        if(!inComp.isEmpty()){
+        if(inComp.isEmpty()){
             activeSession.setCompleted(true);
             sessionRepository.save(activeSession);
             var Data = userDataRepository.findById(currentUser.getUserId()).get();
