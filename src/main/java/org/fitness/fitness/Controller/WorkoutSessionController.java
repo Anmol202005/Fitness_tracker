@@ -15,18 +15,8 @@ public class WorkoutSessionController {
 
     private final WorkoutSessionService sessionService;
 
-    @PostMapping("/start")
-    public ResponseEntity<?> startWorkout(@RequestParam Long workoutPlanId) {
-        return sessionService.startWorkout(workoutPlanId);
-    }
-
     @PostMapping("/complete-exercise")
     public ResponseEntity<?> completeExercise(@RequestParam Long workoutPlanId, Long exerciseId) {
         return sessionService.completeExercise(workoutPlanId, exerciseId);
-    }
-
-    @PostMapping("/finish")
-    public ResponseEntity<?> finishWorkout(@RequestParam Long workoutPlanId) {
-        return sessionService.finishWorkout(workoutPlanId);
     }
 }

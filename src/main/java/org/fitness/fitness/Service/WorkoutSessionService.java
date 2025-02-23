@@ -30,15 +30,10 @@ public class WorkoutSessionService {
     private final UserDataRepository userDataRepository;
     private final WorkoutPlanRepository workoutPlanRepository;
 
-    public ResponseEntity<?> startWorkout(Long workoutPlanId) {
+    public void startWorkout(Long workoutPlanId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
         var workoutPlan = workoutPlanRepository.findById(workoutPlanId).get();
-        // Check if an active session already exists for this workout
-        var existingSession = sessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlanId);
-        if (existingSession.isPresent()) {
-            return ResponseEntity.ok().body(ResponseMessage.builder().message("Workout already in progress").build());
-        }
 
         WorkoutSession session = WorkoutSession.builder()
                 .userId(currentUser.getUserId())
@@ -52,17 +47,20 @@ public class WorkoutSessionService {
                 .build();
 
         sessionRepository.save(session);
-        return ResponseEntity.ok().body(ResponseMessage.builder().message("Workout started!").build());
+
     }
 
     public ResponseEntity<?> completeExercise(Long workoutPlanId, Long exerciseId) {
+
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var currentUser = (User) authentication.getPrincipal();
         if( workoutPlanId != null) {
-            var session = sessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlanId);
-            if (session.isEmpty()) {
-                return ResponseEntity.badRequest().body(ResponseMessage.builder().message("No active workout session found!").build());
+            if (!sessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlanId).isPresent()) {
+                startWorkout(workoutPlanId);
             }
+
+            var session = sessionRepository.findByUserIdAndWorkoutPlanIdAndIsCompletedFalse(currentUser.getUserId(), workoutPlanId);
 
             WorkoutSession activeSession = session.get();
             activeSession.setCompletedExercises(activeSession.getCompletedExercises() + 1);
